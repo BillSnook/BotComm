@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  StartupView.swift
 //  BotComm
 //
 //  Created by Bill Snook on 9/24/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct StartupView: View {
     var body: some View {
         VStack {
             Image(systemName: "globe")
@@ -20,5 +20,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    StartupView()
 }

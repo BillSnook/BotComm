@@ -1,0 +1,1 @@
+ = runMode.buttonTest() ? .connected : .disconnected
