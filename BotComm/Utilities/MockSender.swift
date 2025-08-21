@@ -22,7 +22,7 @@ protocol SenderProtocol {
     func sendData(_ message: [CChar])
     func doBreakConnection()
     func doMakeConnection( to address: String, at port: UInt16 ) -> Bool
-    func sendCmd( _ message: String ) -> Bool
+    @discardableResult func sendCmd( _ message: String ) -> Bool
     func startConnection(_ hostName: String)
 }
 
