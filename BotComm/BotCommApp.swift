@@ -11,7 +11,7 @@ import SwiftUI
 struct BotCommApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            StartupView()
         }
     }
 }
