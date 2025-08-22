@@ -114,7 +114,7 @@ let useDatagramProtocol = true
 	}
 	
 	public func doMakeConnection( to address: String, at port: UInt16 ) -> Bool {
-        updateResponse(" Connect to device \(address) at port \(port) using \(useDatagramProtocol ? "UDP" : "TCP")")
+        updateResponse(" Connect to \(address) at port \(port) using \(useDatagramProtocol ? "UDP" : "TCP")")
         if socketfd != 0 {
             close( socketfd )
             socketfd = 0

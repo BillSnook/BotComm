@@ -39,7 +39,7 @@ struct ConnectView: View {
     // This is the Sender object and here we get updates whenever any of it's @Published object changes
     var robotComm: SenderProtocol
 
-    var connectionRequest: ConnectionRequest // = .connect
+    var connectionRequest: ConnectionRequest
 
     init(_ deviceCommAgent: SenderProtocol) {
         robotComm = deviceCommAgent
@@ -92,7 +92,7 @@ struct ConnectView: View {
     }
     
     func connectionButtonAction() {
-        print("\nConnectView, requested \(connectionRequest.rawValue) in connection state \(robotComm.connectionState.rawValue)")
+        print("\nConnectView, requesting \(connectionRequest.rawValue) in connection state \(robotComm.connectionState.rawValue)")
         if robotComm.connectionState == .disconnected {
             print("  Requesting connect to \(selectedDevice.id)")
             robotComm.requestConnectionStateChange(.connect, selectedDevice.id)

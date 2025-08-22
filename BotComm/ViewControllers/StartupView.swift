@@ -11,7 +11,7 @@ let speedIndex = Speed.shared
 
 struct StartupView: View {
 
-    @State var robotComm: SenderProtocol = MockSender.shared    // For testing
+    @State var robotComm: SenderProtocol = MockSender.shared    // For testing without a device available
 
     @State private var path: [String] = []
 
@@ -105,7 +105,7 @@ struct StartupView: View {
                                     .frame(height: 200.0)
 //                                    .background(Color.yellow)
                                     .font(.subheadline)
-                                    .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
+                                    .padding(EdgeInsets(top: 4.0, leading: -10.0, bottom: 4.0, trailing: -10.0))
                         }
                     }
                 }
