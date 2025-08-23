@@ -22,7 +22,7 @@ struct StartupView: View {
                     Section() {
                         ConnectView( robotComm )
                     }
-                    if robotComm.connectionState == .connected {
+                    if robotComm.connectionState != .disconnected {
                         Section() {
                             SendCommandView( robotComm )
                         }

@@ -24,7 +24,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A91EFF432E5A4F7500070981 /* BotComm.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = BotComm.xcodeproj; path = BotComm/ViewControllers/BotComm.xcodeproj; sourceTree = SOURCE_ROOT; };
 		A945FCD02CA366190011F0AE /* BotComm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BotComm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A945FCE02CA3661B0011F0AE /* BotCommTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BotCommTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A945FCEA2CA3661B0011F0AE /* BotCommUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BotCommUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,13 +91,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A91EFF482E5A4F7600070981 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		A945FCC72CA366190011F0AE = {
 			isa = PBXGroup;
 			children = (
@@ -225,12 +217,6 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A945FCD12CA366190011F0AE /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = A91EFF482E5A4F7600070981 /* Products */;
-					ProjectRef = A91EFF432E5A4F7500070981 /* BotComm.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				A945FCCF2CA366190011F0AE /* BotComm */,

@@ -8,7 +8,22 @@
 
 import SwiftUI
 import Observation
-//import Darwin.C
+
+protocol SenderProtocol {
+
+    var connectionState: ConnectionState { get set }
+    var responseString: String { get set }
+
+    func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String)
+    func startResponse(_ message: String)
+    func updateResponse(_ message: String)
+
+    func sendData(_ message: [CChar])
+    func doBreakConnection()
+    func doMakeConnection( to address: String, at port: UInt16 ) -> Bool
+    @discardableResult func sendCmd( _ message: String ) -> Bool
+    func startConnection(_ hostName: String)
+}
 
 /// Current expected connection state, determined by status of session with target device
 enum ConnectionState: String {          // State of communication channel to device
@@ -22,6 +37,12 @@ enum ConnectionState: String {          // State of communication channel to dev
         case .connecting: return "Connecting..."
         case .disconnecting: return "Disconnecting..."
         case .disconnected: return "Connect"
+        }
+    }
+    func stateChanging() -> Bool {
+        switch self {
+        case .connected, .disconnected: false
+        case .connecting, .disconnecting: true
         }
     }
 }
@@ -53,14 +74,9 @@ let useDatagramProtocol = true
         case (.connect, .connected):
             startResponse("WARNING - already connected")
         case (.connect, .disconnected):
-            connectionState = .connecting
-            startResponse("OK - connecting")
-//            startConnection(hostName)
+            startConnection(hostName)
         case (.disconnect, .connected):
-            connectionState = .disconnecting
-            startResponse("OK - disconnecting")       // Leave for now for diagnostic purposes
-//            doBreakConnection()
-            startResponse("OK - disconnected")
+            doBreakConnection()
         default:
             startResponse("Warning - invalid request received: \(connectionRequest.rawValue) in connection state \(connectionState.rawValue)")
         }
@@ -74,14 +90,6 @@ let useDatagramProtocol = true
 
 //        print(">> \(message)")
         switch message.first {
-        case "R":   // deprecated - range data, obsolete
-            responseString += "\n----    Got Range data, deprecated    ----\n" + message
-//            let params = message.split(separator: " ")
-//            guard params.count == 3 else { return }
-//            pwmTextField.text = String(params[1])
-//            pinTextField.text = String(params[2])
-//            pwmIsValid = true
-//            pinIsValid = true
         case "S":
             print(">> Got speed index file from device")
             speedIndex.setup(message)
@@ -101,36 +109,49 @@ let useDatagramProtocol = true
     }
 
 	public func doBreakConnection() {
-        if connectionState != .disconnected {
-            sendCmd( "#" )               // Sign off device
+        startResponse("OK - disconnecting")
+        sendCmd( "#" )               // Sign off device
+        connectionState = .disconnecting
+        DispatchQueue.global( qos: .userInitiated ).async {
             usleep( 1000000 )
-            deadTime.invalidate()       // Stop sending keep-alive
-			if socketfd != 0 {
-				close( socketfd )
-				socketfd = 0
-			}
-            connectionState = .disconnected
-		}
+            self.deadTime.invalidate()       // Stop sending keep-alive
+            if self.socketfd != 0 {
+                close( self.socketfd )
+                self.socketfd = 0
+            }
+            self.connectionState = .disconnected
+        }
 	}
-	
+
+    func startConnection(_ hostName: String) {
+        connectionState = .connecting
+        startResponse("OK - connecting")
+        DispatchQueue.global( qos: .userInitiated ).async {
+            let connectResult = self.doMakeConnection( to: hostName, at: 5555 )
+            if connectResult {
+                self.connectionState = .connected
+                self.updateResponse("  Connected to host \(hostName)")
+            } else {
+                self.connectionState = .disconnected
+                self.updateResponse("  Failed to connect to host \(hostName)")
+            }
+        }
+    }
+
 	public func doMakeConnection( to address: String, at port: UInt16 ) -> Bool {
         updateResponse(" Connect to \(address) at port \(port) using \(useDatagramProtocol ? "UDP" : "TCP")")
         if socketfd != 0 {
             close( socketfd )
             socketfd = 0
         }
-        if useDatagramProtocol {
-            socketfd = socket( AF_INET, SOCK_DGRAM, 0 )         // ipv4, udp
-        } else {
-            socketfd = socket( AF_INET, SOCK_STREAM, 0 )        // ipv4, tcp
-        }
+        socketfd = socket( AF_INET, useDatagramProtocol ? SOCK_DGRAM : SOCK_STREAM, 0 ) // ipv4, udp or tcp
 
 		guard let targetAddr = doLookup( name: address ) else {
             updateResponse(" Lookup failed for \(address)")
 			return false
 		}
-
         updateResponse(" Found target address: \(targetAddr), connecting...")
+
         let result = doConnect( targetAddr, port: port )
         guard result >= 0 else {
             updateResponse(" Connect failed for \(targetAddr), port \(port), error: \(result)")
@@ -228,12 +249,12 @@ let useDatagramProtocol = true
     @discardableResult public func sendCmd( _ message: String ) -> Bool {
 
         guard connectionState == .connected else {
-            updateResponse(" Socket not connected while sending \(message)")
+            updateResponse(" sendCmd socket not connected while sending \(message)")
             return false
         }
 
-        guard message.count > 0 else {
-            updateResponse(" Message to send is empty")
+        guard !message.isEmpty else {
+            updateResponse(" sendCmd message to send is empty")
             return false
         }
 
@@ -269,18 +290,4 @@ let useDatagramProtocol = true
         sendCmd( "@" )   // Trigger start
         print( "@", terminator: "")
     }
-
-    func startConnection(_ hostName: String) {
-        DispatchQueue.global( qos: .userInitiated ).async {
-            let connectResult = self.doMakeConnection( to: hostName, at: 5555 )
-            if connectResult {
-                self.connectionState = .connected
-                self.updateResponse(" Connected to host \(hostName)")
-            } else {
-                self.connectionState = .disconnected
-                self.updateResponse(" Failed to connect to host \(hostName)")
-            }
-        }
-    }
-/* */
 }

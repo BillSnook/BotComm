@@ -36,7 +36,7 @@ struct ConnectView: View {
 
     let lightGray = Color(red: 0.95, green: 0.95, blue: 0.95)
 
-    // This is the Sender object and here we get updates whenever any of it's @Published object changes
+    // This is the Sender object and we get updates whenever it's @Observable properties changes
     var robotComm: SenderProtocol
 
     var connectionRequest: ConnectionRequest
@@ -73,6 +73,7 @@ struct ConnectView: View {
                 Spacer()
                     .background(.orange)
             } else {
+                Text(selectedDevice.id)
                 Spacer()
                 Button(action: {
                     connectionButtonAction()
@@ -80,11 +81,9 @@ struct ConnectView: View {
                     Text(robotComm.connectionState.buttonName())
                 }
                 .buttonStyle(.bordered)
-                .background(robotComm.connectionState == .connecting ? .clear : lightGray)
-                .foregroundColor(robotComm.connectionState == .connecting ? .gray : .black)
+                .background(robotComm.connectionState.stateChanging() ? .clear : lightGray)
+                .foregroundColor(robotComm.connectionState.stateChanging() ? .gray : .black)
                 .cornerRadius(10.0)
-                Spacer()
-                Text(selectedDevice.id)
                 Spacer()
             }
 

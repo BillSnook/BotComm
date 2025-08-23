@@ -2,29 +2,12 @@
 //  MockSender.swift
 //  BotComm
 //
-//  Created by William Snook on 5/9/18.
-//  Copyright © 2018 billsnook. All rights reserved.
+//  Created by William Snook on 8/20/25.
+//  Copyright © 2025 billsnook. All rights reserved.
 //
 
 import SwiftUI
 import Observation
-//import Darwin.C
-
-protocol SenderProtocol {
-
-    var connectionState: ConnectionState { get set }
-    var responseString: String { get set }
-
-    func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String)
-    func startResponse(_ message: String)
-    func updateResponse(_ message: String)
-
-    func sendData(_ message: [CChar])
-    func doBreakConnection()
-    func doMakeConnection( to address: String, at port: UInt16 ) -> Bool
-    @discardableResult func sendCmd( _ message: String ) -> Bool
-    func startConnection(_ hostName: String)
-}
 
 @Observable final class MockSender: SenderProtocol {
 
@@ -42,19 +25,14 @@ protocol SenderProtocol {
 
     // Called from connect button in ConnectView to connect or disconnect to selected robot device
     func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String) {
-        print("MockSender, received \(connectionRequest.rawValue) in connection state \(connectionState.rawValue)")
+        print("MockSender, requested \(connectionRequest.rawValue) in connection state \(connectionState.rawValue)")
         switch (connectionRequest, connectionState) {
         case (.connect, .connected):
             startResponse("WARNING - already connected")
         case (.connect, .disconnected):
-            connectionState = .connecting
-            startResponse("OK - connecting")
             startConnection(hostName)
         case (.disconnect, .connected):
-            connectionState = .disconnecting
-            startResponse("OK - disconnecting")       // Leave for now for diagnostic purposes
             doBreakConnection()
-            startResponse("OK - disconnected")
         default:
             startResponse("Warning - invalid request received: \(connectionRequest.rawValue) in connection state \(connectionState.rawValue)")
         }
@@ -86,22 +64,36 @@ protocol SenderProtocol {
     }
 
     public func doBreakConnection() {
-        if connectionState != .disconnected {
-            sendCmd( "#" )               // Sign off device
-//            usleep( 1000000 )
-//            deadTime.invalidate()       // Stop sending keep-alive
-//            if socketfd != 0 {
-//                close( socketfd )
-//                socketfd = 0
-//            }
-            connectionState = .disconnected
+        startResponse("OK - disconnecting")
+        sendCmd( "#" )               // Sign off device
+        connectionState = .disconnecting
+        DispatchQueue.global( qos: .userInitiated ).async {
+            usleep( 1000000 )
+            self.connectionState = .disconnected
+        }
+    }
+
+    func startConnection(_ hostName: String) {
+        connectionState = .connecting
+        startResponse("OK - connecting")
+        DispatchQueue.global( qos: .userInitiated ).async {
+            let connectResult = self.doMakeConnection( to: hostName, at: 5555 )
+            if connectResult {
+                self.connectionState = .connected
+                self.updateResponse("  Connected to host \(hostName)")
+                print("  Connected to host \(hostName)")
+            } else {
+                self.connectionState = .disconnected
+                self.updateResponse("  Failed to connect to host \(hostName)")
+                print("  Failed to connect to host \(hostName)")
+            }
         }
     }
 
     public func doMakeConnection( to address: String, at port: UInt16 ) -> Bool {
         updateResponse(" Connect to \(address) at port \(port) using \(useDatagramProtocol ? "UDP" : "TCP")")
 
-//        try await Task.sleep(until: .now + .seconds(2), clock: .continuous)”
+        usleep( 1000000 )
         return true
     }
 
@@ -128,18 +120,4 @@ protocol SenderProtocol {
 
         return true
     }
-
-    func startConnection(_ hostName: String) {
-        DispatchQueue.global( qos: .userInitiated ).async {
-            let connectResult = self.doMakeConnection( to: hostName, at: 5555 )
-            if connectResult {
-                self.connectionState = .connected
-                self.updateResponse(" Connected to host \(hostName)")
-            } else {
-                self.connectionState = .disconnected
-                self.updateResponse(" Failed to connect to host \(hostName)")
-            }
-        }
-    }
-
 }
