@@ -25,7 +25,7 @@ struct SendCommandView: View {
            }
                 .buttonStyle(.bordered)
                 .disabled(commandField.isEmpty)
-            TextField("Type the command here", text: $commandField)
+            TextField("Type a command here", text: $commandField)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
                 .textFieldStyle(.roundedBorder)
@@ -38,7 +38,7 @@ struct SendCommandView_Previews: PreviewProvider {
     static var previews: some View {
         Form {
             Section() {
-                SendCommandView(Sender.shared)
+                SendCommandView(MockSender.shared)
             }
         }
     }

@@ -107,7 +107,7 @@ struct ConnectView_Previews: PreviewProvider {
         VStack {
             Form {
                 Section() {
-                    ConnectView(Sender.shared)
+                    ConnectView(MockSender.shared)
                 }
            }
        }

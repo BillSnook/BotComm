@@ -25,7 +25,7 @@ struct CalibrateView: View {
             SpeedFileActions()
             Spacer()
                 .frame(height: 10.0)
-            SpeedIndexSetup()
+            SpeedIndexSetup(robotComm)
 //                .background(.green)
             Spacer()
                 .frame(height: 20.0)
@@ -40,7 +40,7 @@ struct CalibrateView: View {
 
 struct CalibrateView_Previews: PreviewProvider {
     static var previews: some View {
-        CalibrateView(Sender.shared)
+        CalibrateView(MockSender.shared)
             .previewLayout(.sizeThatFits)
     }
 }

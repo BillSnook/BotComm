@@ -14,8 +14,9 @@ struct TitleFileActions: View {
 
     var robotComm: SenderProtocol
 
-    init(_ deviceCommAgent: SenderProtocol) {
+    init(_ deviceCommAgent: SenderProtocol, title: String) {
         robotComm = deviceCommAgent
+        self.title = title
     }
 
     var body: some View {
@@ -84,7 +85,7 @@ struct TitleFileActions: View {
 
 struct TitleFileActions_Previews: PreviewProvider {
     static var previews: some View {
-        TitleFileActions(robotComm, title: "Alignment")
+        TitleFileActions(MockSender.shared, title: "Alignment")
             .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
     }
 }

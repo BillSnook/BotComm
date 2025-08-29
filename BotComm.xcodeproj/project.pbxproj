@@ -34,13 +34,7 @@
 		A9DF91172E56733100914F12 /* Exceptions for "BotComm" folder in "BotComm" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				ViewControllers/CalibrateView.swift,
 				ViewControllers/DriveView.swift,
-				Views/SpeedChart.swift,
-				Views/SpeedFileActions.swift,
-				Views/SpeedIndexSetup.swift,
-				Views/TestSpeedSetting.swift,
-				Views/TitleFileActions.swift,
 			);
 			target = A945FCCF2CA366190011F0AE /* BotComm */;
 		};

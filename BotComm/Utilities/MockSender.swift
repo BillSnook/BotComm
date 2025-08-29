@@ -13,11 +13,13 @@ import Observation
 
     static let shared = MockSender()
 
-    // For testing buttons, use connected, else use disconnected
     var connectionState: ConnectionState = .disconnected
     var responseString: String = "Begun, it has..."
 
-    public init() {}
+    public init() {
+        // For testing buttons, use connected, else use disconnected
+        connectionState = .connected
+    }
 
     deinit {
         doBreakConnection()

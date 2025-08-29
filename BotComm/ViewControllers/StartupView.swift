@@ -11,7 +11,7 @@ let speedIndex = Speed.shared
 
 struct StartupView: View {
 
-    @State var robotComm: SenderProtocol = MockSender.shared    // For testing without a device available
+    @State private var robotComm: SenderProtocol = MockSender.shared    // For testing without a device available
 
     @State private var path: [String] = []
 
@@ -32,7 +32,8 @@ struct StartupView: View {
                                 Button("Calibrate") {
                                     path = ["CalibrateView"]
                                     print("Calibrate nav link - path is now \(path)")
-//                                    robotComm.sendCmd("D")          // Request device speedIndex data
+                                    // // Prerequest speedIndex
+                                    robotComm.sendCmd("D")
                                 }
                                 .buttonStyle(.bordered)
 
@@ -52,9 +53,9 @@ struct StartupView: View {
                                 .disabled(true)     // In development
                             }
                             .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
-                        }
-
-                        Section() {
+//                        }
+//
+//                        Section() {
                             HStack {
                                 Button("Status") {
                                     print("Send Status Request")
@@ -76,9 +77,9 @@ struct StartupView: View {
                                 .buttonStyle(.bordered)
                             }
                             .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
-                        }
-
-                        Section() {
+//                        }
+//
+//                        Section() {
                             HStack {
                                 Button("Ping") {
                                     print("Send Ping - not implemented yet")
@@ -113,8 +114,8 @@ struct StartupView: View {
             .navigationDestination(for: String.self) { value in
                 switch value {
                 case "CalibrateView":
-                    Text("You selected \(value)")
-//                    CalibrateView(robotComm)
+//                    Text("You selected \(value)")
+                    CalibrateView(robotComm)
                 case "ControlView":
                     Text("You selected \(value)")
 //                    DriveView()

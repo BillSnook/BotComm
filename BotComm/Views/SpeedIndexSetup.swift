@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct SpeedIndexSetup: View {
-    var robotComm = deviceCommandAgent
+
+    var robotComm: SenderProtocol
 
     @State var speed = speedIndex
+
+    init(_ deviceCommAgent: SenderProtocol) {
+        robotComm = deviceCommAgent
+    }
 
     var body: some View {
         HStack {
@@ -73,7 +78,7 @@ struct SpeedIndexSetup: View {
                             .font(.headline)
                     }
                     Spacer()
-                    TextField("Placeholder", text: $speed.rightString)
+                    TextField("1", text: $speed.rightString)
                         .multilineTextAlignment(.center)
                         .frame(width: 80.0)
                         .border(.black)
@@ -92,7 +97,7 @@ struct SpeedIndexSetup: View {
 
 struct SpeedIndexSetup_Previews: PreviewProvider {
     static var previews: some View {
-        SpeedIndexSetup()
+        SpeedIndexSetup(MockSender.shared)
             .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
     }
 }
