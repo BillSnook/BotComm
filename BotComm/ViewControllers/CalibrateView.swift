@@ -10,28 +10,31 @@ import SwiftUI
 struct CalibrateView: View {
 
 //    @State var speedEntryChanged = false   // Track whether any speed entry has changed
-    var robotComm: SenderProtocol
+    private var robotComm: SenderProtocol
+
+    @State private var speed: Speed
 
     init(_ deviceCommAgent: SenderProtocol) {
         robotComm = deviceCommAgent
+        speed = Speed.shared
     }
 
     var body: some View {
         VStack {
-            TitleFileActions(robotComm, title: "Speed Alignment")
+            TitleFileActions(robotComm, speedIndex: speed, title: "Speed Alignment")
                 .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
             Spacer()
                 .frame(height: 20.0)
-            SpeedFileActions()
+            SpeedFileActions(speed)
             Spacer()
                 .frame(height: 10.0)
-            SpeedIndexSetup(robotComm)
+            SpeedIndexSetup(robotComm, speedIndex: speed)
 //                .background(.green)
             Spacer()
                 .frame(height: 20.0)
             TestSpeedSetting()
             Spacer()
-            SpeedChart()
+            SpeedChart(speed)
             Spacer()
         }
         .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))

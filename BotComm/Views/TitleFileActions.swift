@@ -10,12 +10,13 @@ import SwiftUI
 struct TitleFileActions: View {
     let title: String       // Control title, presented between the buttons
 
-    @State var speed = speedIndex
+    private var robotComm: SenderProtocol
 
-    var robotComm: SenderProtocol
+    @State private var speed: Speed
 
-    init(_ deviceCommAgent: SenderProtocol, title: String) {
+    init(_ deviceCommAgent: SenderProtocol, speedIndex: Speed, title: String) {
         robotComm = deviceCommAgent
+        speed = speedIndex
         self.title = title
     }
 
@@ -85,7 +86,7 @@ struct TitleFileActions: View {
 
 struct TitleFileActions_Previews: PreviewProvider {
     static var previews: some View {
-        TitleFileActions(MockSender.shared, title: "Alignment")
+        TitleFileActions(MockSender.shared, speedIndex: Speed.shared, title: "Alignment")
             .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
     }
 }

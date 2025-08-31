@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-let speedIndex = Speed.shared
-
 struct StartupView: View {
 
     @State private var robotComm: SenderProtocol = MockSender.shared    // For testing without a device available

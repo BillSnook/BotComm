@@ -9,7 +9,12 @@ import SwiftUI
 import Charts
 
 struct SpeedChart: View {
-    var speed = speedIndex
+
+    private var speed: Speed
+
+    init(_ speedIndex: Speed) {
+        speed = speedIndex
+    }
 
     var body: some View {
         Text("Left")
@@ -39,5 +44,5 @@ struct SpeedChart: View {
 }
 
 #Preview {
-    SpeedChart()
+    SpeedChart(Speed.shared)
 }

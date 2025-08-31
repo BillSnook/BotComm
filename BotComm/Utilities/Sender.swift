@@ -12,13 +12,12 @@ import Observation
 protocol SenderProtocol {
 
     var connectionState: ConnectionState { get set }
-    var responseString: String { get set }
+    var responseString: String { get set }  // StartView text view tracks and displays this string
 
     func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String)
     func startResponse(_ message: String)
     func updateResponse(_ message: String)
 
-    func sendData(_ message: [CChar])
     func doBreakConnection()
     func doMakeConnection( to address: String, at port: UInt16 ) -> Bool
     @discardableResult func sendCmd( _ message: String ) -> Bool
@@ -58,9 +57,10 @@ let useDatagramProtocol = true
     var connectionState: ConnectionState = .disconnected
     var responseString: String = "Started..."
 
-    var socketfd: Int32 = 0
-    var deadTime = Timer()
+    @ObservationIgnored var socketfd: Int32 = 0
+    @ObservationIgnored var deadTime = Timer()
 
+    
     public init() {}
 
     deinit {
@@ -69,7 +69,7 @@ let useDatagramProtocol = true
  
     // Called from connect button in ConnectView to connect or disconnect to selected robot device
     func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String) {
-        print("Sender, received \(connectionRequest.rawValue) in connection state \(connectionState.rawValue)")
+        print("Sender, requested \(connectionRequest.rawValue) in connection state \(connectionState.rawValue)")
         switch (connectionRequest, connectionState) {
         case (.connect, .connected):
             startResponse("WARNING - already connected")
@@ -90,22 +90,14 @@ let useDatagramProtocol = true
 
 //        print(">> \(message)")
         switch message.first {
-        case "S":
-            print(">> Got speed index file from device")
-            speedIndex.setup(message)
+        case "D":
+            print(">> Got speed index file from device:\n\(message)")
+//            speedIndex.setup(message)
         case "T":
             responseString += "\n----    Got Camera data, todo    ----\n" + message
         default:
             responseString += "\nResponse: <" + message + ">"
         }
-    }
-/* */
-    // Here we have an array of bytes corresponding to the depth data from the tof camera
-    // (with the two byte header, C0). For just one center line for now, 240 bytes.
-    func sendData(_ message: [CChar]) {
-
-
-        responseString = "\nGot tof camera data\n"
     }
 
 	public func doBreakConnection() {
@@ -216,28 +208,7 @@ let useDatagramProtocol = true
     
     func readThread() {         // Start read thread, wait on incoming data
 		DispatchQueue.global(qos: .userInitiated).async { [weak self] () -> Void in
-			while self?.socketfd != 0 {
-				var readBuffer: [CChar] = [CChar](repeating: 0, count: 1024)
-				var rcvLen = 0
-                if useDatagramProtocol {
-                    rcvLen = recv(self!.socketfd, &readBuffer, 1024, 0)
-                } else {
-                    rcvLen = read(self!.socketfd, &readBuffer, 1024 )
-                }
-				if rcvLen <= 0 {
-                    self?.updateResponse(" Connection lost while receiving, \(rcvLen)")
-                    break
-				} else {
-                    if readBuffer.first == 0x43 {
-                        self?.sendData(readBuffer)
-                    } else {
-                        let str = String( cString: readBuffer, encoding: .utf8 ) ?? "bad data"
-                        self?.updateResponse("  <" + str + ">")
-//                        self?.updateResponse(" Read \(rcvLen) bytes from socket \(self!.socketfd):\n-- \(str) --\n")
-                    }
-				}
-			}
-            // If we get here, read has received an error which usually means a comm failure on the robot
+            self?.getReceivedData()
 //            DispatchQueue.main.async {
 ////            self.deadTime.invalidate()
 ////            self.deadTime = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(timerStart), userInfo: nil, repeats: false )
@@ -245,7 +216,31 @@ let useDatagramProtocol = true
 //            }
 		}
 	}
-	
+
+    private func getReceivedData() {
+        while socketfd != 0 {
+            var readBuffer: [CChar] = [CChar](repeating: 0, count: 1024)
+            var rcvLen = 0
+            if useDatagramProtocol {
+                rcvLen = recv(socketfd, &readBuffer, 1024, 0)
+            } else {
+                rcvLen = read(socketfd, &readBuffer, 1024 )
+            }
+            if rcvLen <= 0 {
+                updateResponse(" Connection lost while receiving, \(rcvLen)")
+                break
+            } else {
+                let str = String( cString: readBuffer, encoding: .utf8 ) ?? "bad data"
+                updateResponse("  <" + str + ">")
+                // Here we want to save this response for a requester
+                // Save as dictionary on first character?
+                // ?
+//                updateResponse(" Read \(rcvLen) bytes from socket \(socketfd):\n-- \(str) --\n")
+            }
+        }
+        // If we get here, the socket has closed due to an error which usually means a comm failure on the device/robot
+    }
+
     @discardableResult public func sendCmd( _ message: String ) -> Bool {
 
         guard connectionState == .connected else {

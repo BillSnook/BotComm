@@ -9,12 +9,13 @@ import SwiftUI
 
 struct SpeedIndexSetup: View {
 
-    var robotComm: SenderProtocol
+    private var robotComm: SenderProtocol
 
-    @State var speed = speedIndex
+    @State private var speed: Speed
 
-    init(_ deviceCommAgent: SenderProtocol) {
+    init(_ deviceCommAgent: SenderProtocol, speedIndex: Speed) {
         robotComm = deviceCommAgent
+        speed = speedIndex
     }
 
     var body: some View {
@@ -38,19 +39,19 @@ struct SpeedIndexSetup: View {
                             Text("L")
                             Slider(value: $speed.leftFloat, in: 0...4095, step: 256,
                                    onEditingChanged: { editing in
-                               // If running, may want to send updated speed value to device to see result
-                                robotComm.sendCmd("E \(speed.internalIndex) \(speed.left[speed.internalIndex].value) \(speed.right[speed.internalIndex].value)")
-                                speed.speedArrayHasChanged = true
+                                if !editing {       // editing will be false when done moving slider (touch-up)
+                                    sendUpdateSpeedEntry(speed)
+                                }
                             })
                         }
                         HStack {
                             Text("R")
                             Slider(value: $speed.rightFloat, in: 0...4095, step: 256,
                                    onEditingChanged: { editing in
-                                // If running, may want to send updated speed value to device to see result
-                                robotComm.sendCmd("E \(speed.internalIndex) \(speed.left[speed.internalIndex].value) \(speed.right[speed.internalIndex].value)")
-                                speed.speedArrayHasChanged = true
-                           })
+                                if !editing {       // editing will be false when done moving slider (touch-up)
+                                    sendUpdateSpeedEntry(speed)
+                                }
+                          })
                         }
                     }
                 }
@@ -61,10 +62,8 @@ struct SpeedIndexSetup: View {
                         .frame(width: 80.0)
                         .border(.black)
                         .onSubmit {
-                            // If running, may want to send updated speed value to device to see result
                             print("In onSubmit for left string update")
-                            robotComm.sendCmd("E \(speed.internalIndex) \(speed.left[speed.internalIndex].value) \(speed.right[speed.internalIndex].value)")
-                            speed.speedArrayHasChanged = true
+                            sendUpdateSpeedEntry(speed)
                         }
                     Spacer()
                     if speed.selectedIndex > 0 {
@@ -83,21 +82,26 @@ struct SpeedIndexSetup: View {
                         .frame(width: 80.0)
                         .border(.black)
                         .onSubmit {
-                            // If running, may want to send updated speed value to device to see result
                             print("In onSubmit for right string update")
-                            robotComm.sendCmd("E \(speed.internalIndex) \(speed.left[speed.internalIndex].value) \(speed.right[speed.internalIndex].value)")
-                            speed.speedArrayHasChanged = true
+                            sendUpdateSpeedEntry(speed)
                         }
                     Text("R")
                 }
             }
         }
     }
+
+    private func sendUpdateSpeedEntry(_ speed: Speed) {
+        let index = speed.internalIndex
+//        print("In sendUpdateSpeedEntry for index \(index)")
+        robotComm.sendCmd("E \(index) \(speed.left[index].value) \(speed.right[index].value)")
+        speed.speedArrayHasChanged = true
+    }
 }
 
 struct SpeedIndexSetup_Previews: PreviewProvider {
     static var previews: some View {
-        SpeedIndexSetup(MockSender.shared)
+        SpeedIndexSetup(MockSender.shared, speedIndex: Speed.shared)
             .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
     }
 }

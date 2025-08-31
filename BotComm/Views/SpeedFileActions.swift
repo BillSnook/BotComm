@@ -8,13 +8,22 @@
 import SwiftUI
 
 struct SpeedFileActions: View {
+
     @State private var presentDialog = false
+
+    @State var speed: Speed
+
+    init(_ speedIndex: Speed) {
+        speed = speedIndex
+    }
+
     var body: some View {
         HStack {
             Button("Fill Index") {
                 print("Fill button action to fill forward entries")
             }
             .buttonStyle(.bordered)
+            .disabled(true)     // In development
 
 //            Spacer()
 //            Button("Reset") {
@@ -40,17 +49,18 @@ struct SpeedFileActions: View {
                 print("Fill Reverse button action to fill reverse entries")
             }
             .buttonStyle(.bordered)
+            .disabled(true)     // In development
         }
     }
 
     func resetSpeedModel() {
-        speedIndex.setup()
+        speed.setup()
     }
 }
 
 struct SpeedFileActions_Previews: PreviewProvider {
     static var previews: some View {
-        SpeedFileActions()
+        SpeedFileActions(Speed.shared)
             .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
     }
 }

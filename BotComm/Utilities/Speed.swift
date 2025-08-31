@@ -36,12 +36,15 @@ struct SpeedChartEntry: Identifiable, Hashable {
     var left = [SpeedChartEntry]()
     var right = [SpeedChartEntry]()
 
-    var internalIndex: Int = defaultSpeedArrayIndexSpace + 1    // Index of slowest forward speed, modified by Picker
-    var hasValidSpeedArray = false                              // Not loaded initially, using fill in default
+    @ObservationIgnored var hasValidSpeedArray = false          // Not loaded initially, using fill in default
+    @ObservationIgnored var speedArrayHasChanged = false        // If has been changed since last loaded
+    @ObservationIgnored var speedArrayLoadSelected = false      // Action indicators for load and save speed index buttons pressed
+    @ObservationIgnored var speedArraySaveSelected = false
+
+    @ObservationIgnored private var indexSpace = defaultSpeedArrayIndexSpace    // Number of speed indexes; normally 8 but set by device
+
+    var internalIndex: Int = defaultSpeedArrayIndexSpace + 1    // Default index is slowest forward speed, modified by Picker
     // Used by the load/save logic to show a confirmation dialog if entries are changed
-    var speedArrayHasChanged = false                            // If has been changed since last loaded
-    var speedArrayLoadSelected = false                          // Action indicators for load and save speed index buttons pressed
-    var speedArraySaveSelected = false
     var showLoadConfirmation: Bool {
         get {
             speedArrayLoadSelected && speedArrayHasChanged
@@ -59,8 +62,6 @@ struct SpeedChartEntry: Identifiable, Hashable {
 
         }
     }
-
-    private var indexSpace = defaultSpeedArrayIndexSpace        // Number of speed indexes; normally 8 but set by device
 
 
     private init() {
@@ -90,9 +91,10 @@ struct SpeedChartEntry: Identifiable, Hashable {
 
     // Set parameters from response from device with it's speed index data
     func setup(_ message: String, _ initialIndex: Int = 1) {
-        let params = message.split(separator: "\n")
-        let header = params[0].split(separator: " ")
+        let msgParts = message.split(separator: "\n")
+        let header = msgParts[0].split(separator: " ")
         guard header.count == 2 else {
+            print("Invalid data from device: \(message)")
             return
         }
         // header[0] should be "S" as an identifier for this data format for index entries
@@ -104,13 +106,13 @@ struct SpeedChartEntry: Identifiable, Hashable {
         right = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
         // Here we update the Speed object, speed
         hasValidSpeedArray = true
-        for paramString in params {
+        for paramString in msgParts {
             let entry = paramString.split(separator: " ")
-            if entry[0] != "S" {
+            if entry[0] != "D" {    // Skip header
                 let optIndex = Int( entry[0] )
                 let optLeft = Int( entry[1] )
                 let optRight = Int( entry[2] )
-                if let index = optIndex, let leftValue = optLeft, let rightValue = optRight {
+                if let index = optIndex, let leftValue = optLeft, let rightValue = optRight {   //  Verify valid integers
                     let walkingIndex = index + indexSpace
                     if walkingIndex >= 0 {
                         print("\(index), walkingIndex: \(walkingIndex): \(leftValue)  \(rightValue)")
@@ -119,18 +121,40 @@ struct SpeedChartEntry: Identifiable, Hashable {
                         right[walkingIndex] = SpeedChartEntry(index: String(index),
                                                               value: rightValue)
                     } else {
-                        print("Speed.setup error for index == \(index), internalIndex == \(internalIndex)")
+                        print("Speed.setup index error for index == \(index), internalIndex == \(internalIndex)")
                         hasValidSpeedArray = false
                     }
                 } else {
-                    print("Speed.setup error for index == \(optIndex ?? 999), internalIndex == \(internalIndex)")
+                    print("Speed.setup data error for index == \(optIndex ?? 999), internalIndex == \(internalIndex)")
                     hasValidSpeedArray = false
                 }
             }
         }
     }
+/*
+    Speed.setup from device, indexSpace == 8
+    0, walkingIndex: 8: 0  0
+    1, walkingIndex: 9: 256  256
+    2, walkingIndex: 10: 512  512
+    3, walkingIndex: 11: 768  768
+    4, walkingIndex: 12: 800  800
+    5, walkingIndex: 13: 1280  1280
+    6, walkingIndex: 14: 1536  1536
+    7, walkingIndex: 15: 1792  1792
+    8, walkingIndex: 16: 2048  2048
+    0, walkingIndex: 8: 0  0
+    -1, walkingIndex: 7: 256  256
+    -2, walkingIndex: 6: 512  512
+    -3, walkingIndex: 5: 768  768
+    -4, walkingIndex: 4: 1024  1024
+    -5, walkingIndex: 3: 1280  1280
+    -6, walkingIndex: 2: 1536  1536
+    -7, walkingIndex: 1: 1792  1792
+    -8, walkingIndex: 0: 2048  2048
+    completed task work
+*/
 
-    var selectedIndex: Int {        // External usage, -indexSpace...indexSpace
+    @ObservationIgnored var selectedIndex: Int {        // External usage, -indexSpace...indexSpace
         internalIndex - indexSpace
     }
 
