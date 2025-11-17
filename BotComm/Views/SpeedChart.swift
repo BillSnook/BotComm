@@ -31,7 +31,7 @@ struct SpeedChart: View {
             }
         }
         .frame(height: 120)
-        .padding(EdgeInsets(top: 0.0, leading: -8.0, bottom: 0.0, trailing: -8.0))
+        .padding(EdgeInsets(top: 0.0, leading: -10.0, bottom: 0.0, trailing: -10.0))
         Spacer()
             .frame(height: 10.0)
         Text("Right")
@@ -46,7 +46,7 @@ struct SpeedChart: View {
             }
         }
         .frame(height: 120)
-        .padding(EdgeInsets(top: 0.0, leading: -8.0, bottom: 10.0, trailing: -8.0))
+        .padding(EdgeInsets(top: 0.0, leading: -10.0, bottom: 10.0, trailing: -10.0))
     }
 }
 

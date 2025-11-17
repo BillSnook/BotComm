@@ -47,9 +47,9 @@ struct CalibrateView: View {
     }
 
     var body: some View {
-        VStack {
+        VStack(alignment: .center) {
             SpeedFileActions(robotComm, speedIndex: speed)
-                .padding(EdgeInsets(top: -40.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
+                .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
             Spacer()
                 .frame(height: 10.0)
             SpeedIndexSetup(robotComm, speedIndex: speed)
@@ -57,7 +57,7 @@ struct CalibrateView: View {
                 .frame(height: 20.0)
             TestSpeedSetting(robotComm, speedIndex: speed)
             Spacer()
-                .frame(height: 0.0)
+                .frame(height: 10.0)
             SpeedChart(speed)
             Spacer()
                 .frame(height: 0.0)
@@ -66,9 +66,10 @@ struct CalibrateView: View {
                     .font(.caption)
                     .padding(EdgeInsets(top: 4.0, leading: -10.0, bottom: 4.0, trailing: -10.0))
         }
-        .navigationTitle("Track Alignment")
         .navigationBarTitleDisplayMode(.inline)
-        .padding(EdgeInsets(top: 0.0, leading: 20.0, bottom: 0.0, trailing: 20.0))
+        .navigationTitle("Track Alignment")
+        .padding(EdgeInsets(top: -40.0, leading: 20.0, bottom: 0.0, trailing: 20.0))
+//        .background(.yellow)
     }
 }
 

@@ -120,8 +120,8 @@ struct StartupView: View {
 //                    DriveView()
                 }
             }
-            .navigationTitle("Bot Communication")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Bot Communication")
             .padding(EdgeInsets(top: -30.0, leading: 0.0, bottom: 0.0, trailing: 0.0))
         }
 

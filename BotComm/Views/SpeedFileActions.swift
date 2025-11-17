@@ -26,7 +26,7 @@ struct SpeedFileActions: View {
     var body: some View {
         HStack {
             Button("Revert", role: .destructive) {
-                print("Loading robots speed index file")
+                print("Loading robots saved speed index file")
                 loadConfirmationDialog = true
             }
             .buttonStyle(.bordered)
@@ -44,12 +44,12 @@ struct SpeedFileActions: View {
 //                    print("Cancelled loading device index entries")
 //                }
             } message: {
-                Text("This will replace any unsaved changes with the current device set of entries.\nYou cannot undo this action.")
+                Text("This will replace any unsaved changes with the saved set of entries.\nYou cannot undo this action.")
             }
 
             Spacer()
-            Text(saveStatus)
-                .font(.headline)
+            Text(speed.speedArrayHasChanged ? "Changes not saved" : "No changes yet")
+                .font(.subheadline)
 //                .fontWeight(.semibold)
 
             Spacer()
@@ -88,7 +88,7 @@ struct SpeedFileActions: View {
 
 struct SpeedFileActions_Previews: PreviewProvider {
     static var previews: some View {
-        SpeedFileActions(MockSender.shared, speedIndex: Speed.shared, saveStatus: "Alignment")
+        SpeedFileActions(MockSender.shared, speedIndex: Speed.shared, saveStatus: "Preview")
             .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
     }
 }

@@ -67,13 +67,13 @@ struct SpeedIndexSetup: View {
                         }
                     Spacer()
                     if speed.selectedIndex > 0 {
-                        Text("Forward")
+                        Text("Forward \(speed.selectedIndex)")
                             .font(.headline)
                     } else if speed.selectedIndex == 0 {
                         Text("Stopped")
                             .font(.headline)
                     } else {
-                        Text("Reverse")
+                        Text("Reverse \(-speed.selectedIndex)")
                             .font(.headline)
                     }
                     Spacer()
