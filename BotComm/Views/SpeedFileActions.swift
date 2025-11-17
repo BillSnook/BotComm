@@ -2,65 +2,93 @@
 //  SpeedFileActions.swift
 //  RobotController
 //
-//  Created by Bill Snook on 7/25/23.
+//  Created by Bill Snook on 7/15/23.
 //
 
 import SwiftUI
 
 struct SpeedFileActions: View {
+    public var saveStatus: String       // Control status display, presented between the buttons
 
-    @State private var presentDialog = false
+    private var robotComm: SenderProtocol
 
-    @State var speed: Speed
+    @State private var speed: Speed
+    @State private var loadConfirmationDialog = false
+    @State private var saveConfirmationDialog = false
 
-    init(_ speedIndex: Speed) {
+    init(_ deviceCommAgent: SenderProtocol, speedIndex: Speed, saveStatus: String = "") {
+        robotComm = deviceCommAgent
         speed = speedIndex
+        self.saveStatus = saveStatus
+        speed.speedArrayHasChanged = false      // Not set on entry to not trigger confirmation dialog
     }
 
     var body: some View {
         HStack {
-            Button("Fill Index") {
-                print("Fill button action to fill forward entries")
+            Button("Revert", role: .destructive) {
+                print("Loading robots speed index file")
+                loadConfirmationDialog = true
             }
             .buttonStyle(.bordered)
-            .disabled(true)     // In development
-
-//            Spacer()
-//            Button("Reset") {
-//                print("Reset button action to set default speed index entry settings")
-//                presentDialog = true
-//            }
-//            .buttonStyle(.bordered)
-////            .confirmationDialog(
-////                "This will return the speed index entries to their default settings",
-////                isPresented: $presentDialog)
-////            {
-////                Button("Reset to initial unmodified state", role: .destructive) {
-////                    print("Resetting to default state")
-////                    resetSpeedModel()
-////
-////                }
-////            } message: {
-////                Text("This will replace any unsaved changes with the default initial set of entries.\nYou cannot undo this action.")
-////            }
+            .disabled(!speed.speedArrayHasChanged)
+            .confirmationDialog(
+                "This will reload the speed index entries from the device",
+                isPresented: $loadConfirmationDialog)
+            {
+                Button("Reload from the device", role: .destructive) {
+                    print("Reloading device index entries")
+                    loadFile()
+                    speed.speedArrayHasChanged = false
+                }
+//                Button("Cancel", role: .cancel) {
+//                    print("Cancelled loading device index entries")
+//                }
+            } message: {
+                Text("This will replace any unsaved changes with the current device set of entries.\nYou cannot undo this action.")
+            }
 
             Spacer()
-            Button("Fill Reverse") {
-                print("Fill Reverse button action to fill reverse entries")
+            Text(saveStatus)
+                .font(.headline)
+//                .fontWeight(.semibold)
+
+            Spacer()
+            Button("Save", role: .destructive) {
+                print("Saving speed index file changes")
+                saveConfirmationDialog = true
             }
             .buttonStyle(.bordered)
-            .disabled(true)     // In development
+            .disabled(!speed.speedArrayHasChanged)
+            .confirmationDialog(
+                "This will save the speed index entries to the device and override existing entries",
+                isPresented: $saveConfirmationDialog)
+            {
+                Button("Save on the device", role: .destructive) {
+                    print("Saving device index entries")
+                    saveFile()
+                    speed.speedArrayHasChanged = false
+                }
+//                Button("Cancel", role: .cancel) {
+//                    print("Cancelled saving device index entries")
+//                }
+            } message: {
+                Text("This will save any changes to the current device.\nYou cannot undo this action.")
+            }
         }
     }
 
-    func resetSpeedModel() {
-        speed.setup()
+    private func loadFile() {
+        robotComm.sendCmd("C")  // Request speed file data from device disk file
+    }
+
+    private func saveFile() {
+        robotComm.sendCmd("W")  // Send speed file data to device to save as local startup speed index file
     }
 }
 
 struct SpeedFileActions_Previews: PreviewProvider {
     static var previews: some View {
-        SpeedFileActions(Speed.shared)
+        SpeedFileActions(MockSender.shared, speedIndex: Speed.shared, saveStatus: "Alignment")
             .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
     }
 }

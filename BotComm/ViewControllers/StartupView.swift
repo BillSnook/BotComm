@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StartupView: View {
 
-    @State private var robotComm: SenderProtocol = MockSender.shared    // For testing without a device available
+    @State private var robotComm: SenderProtocol = Sender.shared    // For testing without a device available
 
     @State private var path: [String] = []
 
@@ -51,9 +51,7 @@ struct StartupView: View {
                                 .disabled(true)     // In development
                             }
                             .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
-//                        }
-//
-//                        Section() {
+
                             HStack {
                                 Button("Status") {
                                     print("Send Status Request")
@@ -75,26 +73,27 @@ struct StartupView: View {
                                 .buttonStyle(.bordered)
                             }
                             .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
-//                        }
-//
-//                        Section() {
+
                             HStack {
                                 Button("Ping") {
                                     print("Send Ping - not implemented yet")
                                 }
                                 .buttonStyle(.bordered)
+                                .disabled(true)     // Deprecated
 
                                 Spacer()
                                 Button("Center") {
                                     print("Send Center - not implemented yet")
                                 }
                                 .buttonStyle(.bordered)
+                                .disabled(true)     // Deprecated
 
                                 Spacer()
                                 Button("Stop") {
                                     print("Send Stop - not implemented yet")
                                 }
                                 .buttonStyle(.bordered)
+                                .disabled(true)     // Deprecated
                             }
                             .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
                         }
@@ -102,9 +101,8 @@ struct StartupView: View {
                         Section() {
                             TextEditor(text: $robotComm.responseString)
                                     .frame(height: 200.0)
-//                                    .background(Color.yellow)
-                                    .font(.subheadline)
-                                    .padding(EdgeInsets(top: 4.0, leading: -10.0, bottom: 4.0, trailing: -10.0))
+                                    .font(.caption)
+                                    .padding(EdgeInsets(top: 0.0, leading: -10.0, bottom: 0.0, trailing: -10.0))
                         }
                     }
                 }
@@ -122,9 +120,10 @@ struct StartupView: View {
 //                    DriveView()
                 }
             }
+            .navigationTitle("Bot Communication")
+            .navigationBarTitleDisplayMode(.inline)
+            .padding(EdgeInsets(top: -30.0, leading: 0.0, bottom: 0.0, trailing: 0.0))
         }
-        .navigationTitle("Bot Comms")
-        .navigationBarTitleDisplayMode(.inline)
 
 //        Spacer()
 //        ScrollView() {

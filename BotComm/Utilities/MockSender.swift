@@ -6,8 +6,7 @@
 //  Copyright © 2025 billsnook. All rights reserved.
 //
 
-import SwiftUI
-import Observation
+import Foundation
 
 @Observable final class MockSender: SenderProtocol {
 
@@ -114,14 +113,14 @@ import Observation
         let msgType = message.first
         switch msgType {
         case "C":
-            print("sendCmd with \"C\", test response")
-            testReceiveData()
+            print("sendCmd with \"C\", mock response - get speedIndex")
+            getSpeedData()
         case "D":
             print("sendCmd with \"D\", mock response - get speedIndex")
             getSpeedData()
         case "E":
-            print("sendCmd with \"E\", \(message)no response expected")
-//            start()ssage
+            print("sendCmd with \"E\", \(message), no response expected")
+//            start()
         default:
             print("sendCmd with \(message), command not recognized")
         }
@@ -130,44 +129,10 @@ import Observation
         return true
     }
 
-    func testReceiveData() {
+   func getSpeedData() {
         work = Task {
             print("start task work")
             try? await Task.sleep(for: .seconds(3))
-//            self.responseString += "\nSpeed data\n"
-
-            let replyString = """
-                D 8
-                0 0 0
-                1 256 256
-                2 512 512
-                3 768 768
-                4 800 800
-                5 1280 1280
-                6 1536 1536
-                7 1792 1792
-                8 2048 2048
-                0 0 0
-                -1 256 256
-                -2 512 512
-                -3 768 768
-                -4 1024 1024
-                -5 1280 1280
-                -6 1536 1536
-                -7 1792 1792
-                -8 2048 2048
-                """
-            speed.setup(replyString)
-            print("completed task work")
-        }
-        print("after task work returns")
-    }
-
-    func getSpeedData() {
-        work = Task {
-            print("start task work")
-            try? await Task.sleep(for: .seconds(3))
-//            self.responseString += "\nSpeed data\n"
             let replyString = """
                 D 8
                 0 0 0

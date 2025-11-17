@@ -17,7 +17,11 @@ struct SpeedChart: View {
     }
 
     var body: some View {
+        Spacer()
+            .frame(height: 12.0)
         Text("Left")
+        Spacer()
+            .frame(height: 4.0)
         Chart {
             ForEach(speed.left, id: \.self) { speedEntry in
                 LineMark(
@@ -26,10 +30,13 @@ struct SpeedChart: View {
                 )
             }
         }
-        .frame(height: 140)
-        .padding()
+        .frame(height: 120)
+        .padding(EdgeInsets(top: 0.0, leading: -8.0, bottom: 0.0, trailing: -8.0))
         Spacer()
+            .frame(height: 10.0)
         Text("Right")
+        Spacer()
+            .frame(height: 4.0)
         Chart {
             ForEach(speed.right, id: \.self) { speedEntry in
                 LineMark(
@@ -38,8 +45,8 @@ struct SpeedChart: View {
                 )
             }
         }
-        .frame(height: 140)
-        .padding()
+        .frame(height: 120)
+        .padding(EdgeInsets(top: 0.0, leading: -8.0, bottom: 10.0, trailing: -8.0))
     }
 }
 

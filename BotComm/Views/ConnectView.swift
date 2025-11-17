@@ -32,7 +32,7 @@ struct ConnectView: View {
 
         var id: String { self.rawValue.capitalized }
     }
-    @State private var selectedDevice: Devices = .mockery
+    @State private var selectedDevice: Devices = .goofy
 
     let lightGray = Color(red: 0.95, green: 0.95, blue: 0.95)
 

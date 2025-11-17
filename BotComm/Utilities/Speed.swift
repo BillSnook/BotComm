@@ -6,6 +6,7 @@
 //
 
 import Foundation
+//import Combine
 
 /// Our robot motor controller accepts speed settings of from 0 to 4096. We want a simple range of 0 to 8.
 /// The robot maintains a list of speed settings to send to the motor controller to control the tread speed.
@@ -17,11 +18,11 @@ import Foundation
 /// set the current speed.
 
 //             left | right
-// -8 7 6 5 4 3 2 1 0 1 2 3 4 5 6 7 8   selectedIndex   displayIndex
-//  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6   internalIndex   arrayIndex
+// -8 7 6 5 4 3 2 1 0 1 2 3 4 5 6 7 8   selectedIndex   displayed index
+//  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6   internalIndex   array index
 
 let defaultSpeedArrayIndexSpace = 8
-let speedArraySpeedIncrements = 128     // 256 for testing should be able to use 512 (2048 vs 4096 top end)
+let speedArraySpeedIncrements = 256     // 256 for testing should be able to use 512 (2048 vs 4096 top end)
 
 struct SpeedChartEntry: Identifiable, Hashable {
     var index: String
@@ -36,32 +37,41 @@ struct SpeedChartEntry: Identifiable, Hashable {
     var left = [SpeedChartEntry]()
     var right = [SpeedChartEntry]()
 
-    @ObservationIgnored var hasValidSpeedArray = false          // Not loaded initially, using fill in default
-    @ObservationIgnored var speedArrayHasChanged = false        // If has been changed since last loaded
-    @ObservationIgnored var speedArrayLoadSelected = false      // Action indicators for load and save speed index buttons pressed
-    @ObservationIgnored var speedArraySaveSelected = false
-
-    @ObservationIgnored private var indexSpace = defaultSpeedArrayIndexSpace    // Number of speed indexes; normally 8 but set by device
-
     var internalIndex: Int = defaultSpeedArrayIndexSpace + 1    // Default index is slowest forward speed, modified by Picker
-    // Used by the load/save logic to show a confirmation dialog if entries are changed
-    var showLoadConfirmation: Bool {
-        get {
-            speedArrayLoadSelected && speedArrayHasChanged
-        }
-        set {
-            print("----    Set called on showLoadConfirmation - why? newValue is \(newValue ? "True" : "False")")
-        }
-    }
-    var showSaveConfirmation: Bool {
-        get {
-            speedArraySaveSelected && speedArrayHasChanged
-        }
-        set {
-            print("----    Set called on showSaveConfirmation - why? newValue is \(newValue ? "True" : "False")")
 
-        }
+    // These booleans are used to support the confirmation dialogs for saving and restoring robot working data to the startup file
+    @ObservationIgnored var hasValidSpeedArray = false          // Not loaded initially, using fill in default
+    var speedArrayHasChanged = false        // If has been changed since last loaded
+//    @ObservationIgnored var speedArrayLoadSelected = false      // Action indicators for load and save speed index buttons pressed
+//    @ObservationIgnored var speedArraySaveSelected = false
+
+    @ObservationIgnored var indexSpace = defaultSpeedArrayIndexSpace    // Number of speed indexes; normally 8 but set by device
+    @ObservationIgnored var selectedIndex: Int {                        // External usage, -indexSpace...indexSpace
+        internalIndex - indexSpace
     }
+
+
+    @ObservationIgnored @Published private var speedMessage = ""
+
+    // Deprecated // Used by the load/save logic to show a confirmation dialog if entries are changed
+//    var showLoadConfirmation: Bool = false {
+//        get {
+//            speedArrayHasChanged
+//        }
+//        set {
+//            print("----    Set called on showLoadConfirmation - why? newValue is \(newValue ? "True" : "False")")
+//            speedArrayHasChanged = newValue
+//        }
+//    }
+//    var showSaveConfirmation: Bool {
+//        get {
+//            speedArrayHasChanged
+//        }
+//        set {
+//            print("----    Set called on showSaveConfirmation - why? newValue is \(newValue ? "True" : "False")")
+//            speedArrayHasChanged = newValue
+//        }
+//    }
 
 
     private init() {
@@ -76,8 +86,8 @@ struct SpeedChartEntry: Identifiable, Hashable {
         indexSpace = defaultSpeedArrayIndexSpace
 //        print("Speed.setup, default, indexSpace == \(indexSpace)")
         internalIndex = indexSpace + initialIndex
-        left = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
-        right = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
+        var left = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
+        var right = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
         for arrayIndex in 0...(indexSpace * 2) {
             let displayIndex = arrayIndex - indexSpace
             left[arrayIndex] = SpeedChartEntry(index: String(displayIndex),
@@ -86,10 +96,12 @@ struct SpeedChartEntry: Identifiable, Hashable {
                                                 value: speedArraySpeedIncrements * abs(displayIndex))
 //            print("\(displayIndex): \(left[arrayIndex])  \(right[arrayIndex])")
         }
+        self.left = left
+        self.right = right
         hasValidSpeedArray = true
     }
 
-    // Set parameters from response from device with it's speed index data
+    // Set speed index array from response from device with it's speed index data
     func setup(_ message: String, _ initialIndex: Int = 1) {
         let msgParts = message.split(separator: "\n")
         let header = msgParts[0].split(separator: " ")
@@ -97,13 +109,13 @@ struct SpeedChartEntry: Identifiable, Hashable {
             print("Invalid data from device: \(message)")
             return
         }
-        // header[0] should be "S" as an identifier for this data format for index entries
+        // header[0] should be "D" as an identifier for this data format for index entries
         // header[1] should be the count of indexes, usually 8
-        indexSpace = Int( header[1] ) ?? defaultSpeedArrayIndexSpace
-        print("Speed.setup from device, indexSpace == \(indexSpace)")
+        indexSpace = Int( header[1] ) ?? defaultSpeedArrayIndexSpace    // defaultSpeedArrayIndexSpace = 8
+///        print("Speed.setup from device, indexSpace == \(indexSpace)")
         internalIndex = indexSpace + initialIndex
-        left = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
-        right = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
+        var left = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
+        var right = Array(repeating: SpeedChartEntry(index: "0", value: 0), count: indexSpace * 2 + 1)
         // Here we update the Speed object, speed
         hasValidSpeedArray = true
         for paramString in msgParts {
@@ -115,7 +127,7 @@ struct SpeedChartEntry: Identifiable, Hashable {
                 if let index = optIndex, let leftValue = optLeft, let rightValue = optRight {   //  Verify valid integers
                     let walkingIndex = index + indexSpace
                     if walkingIndex >= 0 {
-                        print("\(index), walkingIndex: \(walkingIndex): \(leftValue)  \(rightValue)")
+///                        print("\(index), walkingIndex: \(walkingIndex): \(leftValue)  \(rightValue)")
                         left[walkingIndex] = SpeedChartEntry(index: String(index),
                                                              value: leftValue)
                         right[walkingIndex] = SpeedChartEntry(index: String(index),
@@ -130,6 +142,8 @@ struct SpeedChartEntry: Identifiable, Hashable {
                 }
             }
         }
+        self.left = left
+        self.right = right
     }
 /*
     Speed.setup from device, indexSpace == 8
@@ -153,10 +167,6 @@ struct SpeedChartEntry: Identifiable, Hashable {
     -8, walkingIndex: 0: 2048  2048
     completed task work
 */
-
-    @ObservationIgnored var selectedIndex: Int {        // External usage, -indexSpace...indexSpace
-        internalIndex - indexSpace
-    }
 
     var leftFloat: Float {
         get {
