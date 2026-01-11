@@ -8,21 +8,21 @@
 
 import Foundation
 
-protocol SenderProtocol {   // Used to support a mock version of sender for testing and previews
-
-    var connectionState: ConnectionState { get set }
-    var responseString: String { get set }  // StartView text view tracks and displays this string
-
-    func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String)
-    func startResponse(_ message: String)
-    func updateResponse(_ message: String)
-
-    func doBreakConnection()
-    func doMakeConnection( to address: String, at port: UInt16 ) -> Bool
-    func startConnection(_ hostName: String)
-
-    @discardableResult func sendCmd( _ message: String ) -> Bool
-}
+//protocol SenderProtocol {   // Used to support a mock version of sender for testing and previews
+//
+//    var connectionState: ConnectionState { get set }
+//    var responseString: String { get set }  // StartView text view tracks and displays this string
+//
+//    func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String)
+//    func startResponse(_ message: String)
+//    func updateResponse(_ message: String)
+//
+//    func doBreakConnection()
+//    func doMakeConnection( to address: String, at port: UInt16 ) -> Bool
+//    func startConnection(_ hostName: String)
+//
+//    @discardableResult func sendCmd( _ message: String ) -> Bool
+//}
 
 /// Current expected connection state, determined by status of session with target device
 enum ConnectionState: String {          // State of communication channel to device
@@ -53,7 +53,7 @@ enum ReceiveError: Error {
 let useDatagramProtocol = true
 
 
-@Observable class Sender: SenderProtocol {
+@Observable class Sender {
 
     // For testing buttons, use connected, else use disconnected
     var connectionState: ConnectionState = .connected

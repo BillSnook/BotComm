@@ -13,7 +13,6 @@ import Foundation
     @ObservationIgnored var work: Task<Void, Never>?
     @ObservationIgnored var speed: Speed = Speed.shared
 
-
     public init(_ speedIndex: Speed) {
         // For testing buttons, use connected, else use disconnected
         super.init()
@@ -127,7 +126,7 @@ import Foundation
    func getSpeedData() {
         work = Task {
             print("start task work")
-            try? await Task.sleep(for: .seconds(3))
+            try? await Task.sleep(for: .seconds(2))
             let replyString = """
                 D 8
                 0 0 0
@@ -135,7 +134,7 @@ import Foundation
                 2 512 512
                 3 768 768
                 4 800 800
-                5 1280 1280
+                5 1000 1000
                 6 1536 1536
                 7 1792 1792
                 8 2048 2048
@@ -151,16 +150,18 @@ import Foundation
                 """
             speed.setup(replyString)
             print("completed task work")
+            updateResponse("Mock speed data:")
+            updateResponse(replyString)
         }
         print("after task work returns")
    }
 
-    func start() {
-        work = Task {
-            print("start task work")
-            try? await Task.sleep(for: .seconds(3))
-            self.responseString = "Hurrah"
-            print("completed task work")
-        }
-    }
+//    func start() {
+//        work = Task {
+//            print("start task work")
+//            try? await Task.sleep(for: .seconds(3))
+//            self.responseString = "Hurrah"
+//            print("completed task work")
+//        }
+//    }
 }

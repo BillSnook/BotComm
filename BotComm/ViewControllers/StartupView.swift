@@ -134,5 +134,5 @@ struct StartupView: View {
 
 #Preview {
     StartupView()
-        .environment(Sender())
+        .environment(MockSender(Speed.shared) as Sender)
 }

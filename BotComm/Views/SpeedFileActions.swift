@@ -24,6 +24,11 @@ struct SpeedFileActions: View {
 
     var body: some View {
         HStack {
+            Text(speed.speedArrayHasChanged ? "Changes not saved" : "No changes yet")
+                .font(.subheadline)
+//                .fontWeight(.semibold)
+
+            Spacer()
             Button("Revert", role: .destructive) {
                 print("Loading robots saved speed index file")
                 loadConfirmationDialog = true
@@ -45,11 +50,6 @@ struct SpeedFileActions: View {
             } message: {
                 Text("This will replace any unsaved changes with the saved set of entries.\nYou cannot undo this action.")
             }
-
-            Spacer()
-            Text(speed.speedArrayHasChanged ? "Changes not saved" : "No changes yet")
-                .font(.subheadline)
-//                .fontWeight(.semibold)
 
             Spacer()
             Button("Save", role: .destructive) {
@@ -87,6 +87,6 @@ struct SpeedFileActions: View {
 
 #Preview {
     SpeedFileActions(speedIndex: Speed.shared, saveStatus: "Preview")
-        .environment(Sender())
+        .environment(MockSender(Speed.shared) as Sender)
         .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
 }

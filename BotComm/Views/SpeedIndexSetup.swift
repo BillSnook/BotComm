@@ -99,6 +99,6 @@ struct SpeedIndexSetup: View {
 
 #Preview {
     SpeedIndexSetup(speedIndex: Speed.shared)
-        .environment(Sender())
+        .environment(MockSender(Speed.shared) as Sender)
         .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
 }

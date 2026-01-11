@@ -60,18 +60,18 @@ struct CalibrateView: View {
                 .frame(height: 0.0)
             @Bindable var bot = robotComm
             TextEditor(text: $bot.responseString)
-                    .frame(height: 100.0)
+//                    .frame(height: 100.0)
                     .font(.caption)
                     .padding(EdgeInsets(top: 4.0, leading: -10.0, bottom: 4.0, trailing: -10.0))
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Track Alignment")
-        .padding(EdgeInsets(top: -40.0, leading: 20.0, bottom: 0.0, trailing: 20.0))
+        .padding(EdgeInsets(top: -10.0, leading: 20.0, bottom: 0.0, trailing: 20.0))
 //        .background(.yellow)
     }
 }
 
 #Preview {
     CalibrateView()
-        .environment(Sender())
+        .environment(MockSender(Speed.shared) as Sender)
 }
