@@ -8,14 +8,9 @@
 import SwiftUI
 
 struct SendCommandView: View {
-
-    var robotComm: SenderProtocol
+    @Environment(Sender.self) private var robotComm
 
     @State private var commandField: String = ""
-
-    init(_ deviceCommAgent: SenderProtocol) {
-        robotComm = deviceCommAgent
-    }
 
     var body: some View {
         HStack {
@@ -34,12 +29,11 @@ struct SendCommandView: View {
     }
 }
 
-struct SendCommandView_Previews: PreviewProvider {
-    static var previews: some View {
-        Form {
-            Section() {
-                SendCommandView(MockSender.shared)
-            }
+#Preview {
+    Form {
+        Section() {
+            SendCommandView()
+                .environment(Sender())
         }
     }
 }

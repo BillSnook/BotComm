@@ -35,33 +35,31 @@ We also can send commands to save this current state, which includes the
 import SwiftUI
 
 struct CalibrateView: View {
-
-//    @State var speedEntryChanged = false   // Track whether any speed entry has changed
-    @State private var robotComm: SenderProtocol
+    @Environment(Sender.self) private var robotComm
 
     @State private var speed: Speed
 
-    init(_ deviceCommAgent: SenderProtocol) {
-        robotComm = deviceCommAgent
+    init() {
         speed = Speed.shared
     }
 
     var body: some View {
         VStack(alignment: .center) {
-            SpeedFileActions(robotComm, speedIndex: speed)
+            SpeedFileActions(speedIndex: speed)
                 .padding(EdgeInsets(top: 4.0, leading: 0.0, bottom: 4.0, trailing: 0.0))
             Spacer()
                 .frame(height: 10.0)
-            SpeedIndexSetup(robotComm, speedIndex: speed)
+            SpeedIndexSetup(speedIndex: speed)
             Spacer()
                 .frame(height: 20.0)
-            TestSpeedSetting(robotComm, speedIndex: speed)
+            TestSpeedSetting(speedIndex: speed)
             Spacer()
                 .frame(height: 10.0)
             SpeedChart(speed)
             Spacer()
                 .frame(height: 0.0)
-            TextEditor(text: $robotComm.responseString)
+            @Bindable var bot = robotComm
+            TextEditor(text: $bot.responseString)
                     .frame(height: 100.0)
                     .font(.caption)
                     .padding(EdgeInsets(top: 4.0, leading: -10.0, bottom: 4.0, trailing: -10.0))
@@ -73,9 +71,7 @@ struct CalibrateView: View {
     }
 }
 
-struct CalibrateView_Previews: PreviewProvider {
-    static var previews: some View {
-        CalibrateView(MockSender.shared)
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    CalibrateView()
+        .environment(Sender())
 }

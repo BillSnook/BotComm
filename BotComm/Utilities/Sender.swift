@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol SenderProtocol {
+protocol SenderProtocol {   // Used to support a mock version of sender for testing and previews
 
     var connectionState: ConnectionState { get set }
     var responseString: String { get set }  // StartView text view tracks and displays this string
@@ -19,8 +19,9 @@ protocol SenderProtocol {
 
     func doBreakConnection()
     func doMakeConnection( to address: String, at port: UInt16 ) -> Bool
-    @discardableResult func sendCmd( _ message: String ) -> Bool
     func startConnection(_ hostName: String)
+
+    @discardableResult func sendCmd( _ message: String ) -> Bool
 }
 
 /// Current expected connection state, determined by status of session with target device
@@ -52,16 +53,14 @@ enum ReceiveError: Error {
 let useDatagramProtocol = true
 
 
-@Observable final class Sender: SenderProtocol {
-
-    static let shared = Sender()
+@Observable class Sender: SenderProtocol {
 
     // For testing buttons, use connected, else use disconnected
     var connectionState: ConnectionState = .connected
     var responseString: String = "Started..."
 
-    @ObservationIgnored var socketfd: Int32 = 0
-    @ObservationIgnored var deadTime = Timer()
+    @ObservationIgnored private var socketfd: Int32 = 0
+    @ObservationIgnored private var deadTime = Timer()
 
 
     public init() {}
@@ -318,6 +317,6 @@ let useDatagramProtocol = true
 
 //    @objc func timerStart() {
 //        sendCmd( "@" )   // Trigger start
-//        print( "@", terminator: "")
+//        print( "@", terminator: "") // No newline
 //    }
 }

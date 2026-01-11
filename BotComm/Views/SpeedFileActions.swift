@@ -8,16 +8,15 @@
 import SwiftUI
 
 struct SpeedFileActions: View {
-    public var saveStatus: String       // Control status display, presented between the buttons
+    @Environment(Sender.self) private var robotComm
 
-    private var robotComm: SenderProtocol
+    public var saveStatus: String       // Control status display, presented between the buttons
 
     @State private var speed: Speed
     @State private var loadConfirmationDialog = false
     @State private var saveConfirmationDialog = false
 
-    init(_ deviceCommAgent: SenderProtocol, speedIndex: Speed, saveStatus: String = "") {
-        robotComm = deviceCommAgent
+    init(speedIndex: Speed, saveStatus: String = "") {
         speed = speedIndex
         self.saveStatus = saveStatus
         speed.speedArrayHasChanged = false      // Not set on entry to not trigger confirmation dialog
@@ -86,9 +85,8 @@ struct SpeedFileActions: View {
     }
 }
 
-struct SpeedFileActions_Previews: PreviewProvider {
-    static var previews: some View {
-        SpeedFileActions(MockSender.shared, speedIndex: Speed.shared, saveStatus: "Preview")
-            .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
-    }
+#Preview {
+    SpeedFileActions(speedIndex: Speed.shared, saveStatus: "Preview")
+        .environment(Sender())
+        .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
 }

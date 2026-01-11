@@ -8,13 +8,11 @@
 import SwiftUI
 
 struct SpeedIndexSetup: View {
-
-    private var robotComm: SenderProtocol
+    @Environment(Sender.self) private var robotComm
 
     @State private var speed: Speed
 
-    init(_ deviceCommAgent: SenderProtocol, speedIndex: Speed) {
-        robotComm = deviceCommAgent
+    init(speedIndex: Speed) {
         speed = speedIndex
     }
 
@@ -99,9 +97,8 @@ struct SpeedIndexSetup: View {
     }
 }
 
-struct SpeedIndexSetup_Previews: PreviewProvider {
-    static var previews: some View {
-        SpeedIndexSetup(MockSender.shared, speedIndex: Speed.shared)
-            .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
-    }
+#Preview {
+    SpeedIndexSetup(speedIndex: Speed.shared)
+        .environment(Sender())
+        .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
 }

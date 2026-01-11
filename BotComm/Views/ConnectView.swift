@@ -14,6 +14,7 @@ enum ConnectionRequest: String {
 }
 
 struct ConnectView: View {
+    @Environment(Sender.self) private var robotComm
 
     // Known devices using their .local network names
     enum Devices: String, CaseIterable, Identifiable {
@@ -36,15 +37,11 @@ struct ConnectView: View {
 
     let lightGray = Color(red: 0.95, green: 0.95, blue: 0.95)
 
-    // This is the Sender object and we get updates whenever it's @Observable properties changes
-    var robotComm: SenderProtocol
+//    lazy var connectionRequest: ConnectionRequest = robotComm.connectionState == .disconnected ? .connect : .disconnect
 
-    var connectionRequest: ConnectionRequest
-
-    init(_ deviceCommAgent: SenderProtocol) {
-        robotComm = deviceCommAgent
-        connectionRequest = robotComm.connectionState == .disconnected ? .connect : .disconnect
-    }
+//    init() {
+//        connectionRequest = robotComm.connectionState == .disconnected ? .connect : .disconnect
+//    }
 
     var body: some View {
         HStack {
@@ -91,7 +88,7 @@ struct ConnectView: View {
     }
     
     func connectionButtonAction() {
-        print("\nConnectView, requesting \(connectionRequest.rawValue) in connection state \(robotComm.connectionState.rawValue)")
+//        print("\nConnectView, requesting \(connectionRequest.rawValue) in connection state \(robotComm.connectionState.rawValue)")
         if robotComm.connectionState == .disconnected {
             print("  Requesting connect to \(selectedDevice.id)")
             robotComm.requestConnectionStateChange(.connect, selectedDevice.id)
@@ -102,14 +99,12 @@ struct ConnectView: View {
     }
 }
 
-struct ConnectView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            Form {
-                Section() {
-                    ConnectView(MockSender.shared)
-                }
-           }
-       }
+#Preview {
+    VStack {
+        Form {
+            Section() {
+                ConnectView()
+            }
+        }
     }
 }

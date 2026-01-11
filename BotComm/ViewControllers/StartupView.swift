@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct StartupView: View {
-
-    @State private var robotComm: SenderProtocol = Sender.shared    // For testing without a device available
+    @Environment(Sender.self) private var robotComm
 
     @State private var path: [String] = []
 
@@ -18,11 +17,11 @@ struct StartupView: View {
             VStack(alignment: .center) {
                 Form {
                     Section() {
-                        ConnectView( robotComm )
+                       ConnectView()
                     }
                     if robotComm.connectionState != .disconnected {
                         Section() {
-                            SendCommandView( robotComm )
+                            SendCommandView()
                         }
 
                         Section() {
@@ -99,7 +98,8 @@ struct StartupView: View {
                         }
 
                         Section() {
-                            TextEditor(text: $robotComm.responseString)
+                            @Bindable var bot = robotComm
+                            TextEditor(text: $bot.responseString)
                                     .frame(height: 200.0)
                                     .font(.caption)
                                     .padding(EdgeInsets(top: 0.0, leading: -10.0, bottom: 0.0, trailing: -10.0))
@@ -111,7 +111,7 @@ struct StartupView: View {
                 switch value {
                 case "CalibrateView":
 //                    Text("You selected \(value)")
-                    CalibrateView(robotComm)
+                    CalibrateView()
                 case "ControlView":
                     Text("You selected \(value)")
 //                    DriveView()
@@ -134,4 +134,5 @@ struct StartupView: View {
 
 #Preview {
     StartupView()
+        .environment(Sender())
 }

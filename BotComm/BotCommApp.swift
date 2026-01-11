@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct BotCommApp: App {
+    @State private var robotComm = Sender()     // 'source of truth', storage for this class
+
     var body: some Scene {
         WindowGroup {
             StartupView()
+                .environment(robotComm)         // Makes robotComm available to this and all subviews
         }
     }
 }

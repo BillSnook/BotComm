@@ -16,8 +16,6 @@ struct DriveView: View {
     }
 }
 
-struct DriveView_Previews: PreviewProvider {
-    static var previews: some View {
-        DriveView()
-    }
+#Preview {
+    DriveView()
 }

@@ -8,20 +8,15 @@
 
 import Foundation
 
-@Observable final class MockSender: SenderProtocol {
-
-    static let shared = MockSender(Speed.shared)
-
-    var connectionState: ConnectionState = .disconnected
-    var responseString: String = "Begun, it has..."
+@Observable class MockSender: Sender {
 
     @ObservationIgnored var work: Task<Void, Never>?
-    @ObservationIgnored var speed: Speed
+    @ObservationIgnored var speed: Speed = Speed.shared
 
 
     public init(_ speedIndex: Speed) {
         // For testing buttons, use connected, else use disconnected
-        connectionState = .connected
+        super.init()
         speed = speedIndex
     }
 
@@ -30,7 +25,7 @@ import Foundation
     }
 
     // Called from connect button in ConnectView to connect or disconnect to selected robot device
-    func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String) {
+    override func requestConnectionStateChange(_ connectionRequest: ConnectionRequest, _ hostName: String) {
         print("MockSender, requested \(connectionRequest.rawValue) in connection state \(connectionState.rawValue)")
         switch (connectionRequest, connectionState) {
         case (.connect, .connected):
@@ -44,11 +39,11 @@ import Foundation
         }
     }
 
-    func startResponse(_ message: String) {
+    override func startResponse(_ message: String) {
         responseString = message
     }
 
-    func updateResponse(_ message: String) {    // With message received from device
+    override func updateResponse(_ message: String) {    // With message received from device
 
 //        print(">> \(message)")
         switch message.first {
@@ -62,7 +57,7 @@ import Foundation
         }
     }
 
-    public func doBreakConnection() {
+    override public func doBreakConnection() {
         startResponse("OK - disconnecting")
         sendCmd( "#" )               // Sign off device
         connectionState = .disconnecting
@@ -72,7 +67,7 @@ import Foundation
         }
     }
 
-    func startConnection(_ hostName: String) {
+    override func startConnection(_ hostName: String) {
         connectionState = .connecting
         startResponse("OK - connecting")
         DispatchQueue.global( qos: .userInitiated ).async {
@@ -89,7 +84,7 @@ import Foundation
         }
     }
 
-    public func doMakeConnection( to address: String, at port: UInt16 ) -> Bool {
+    override public func doMakeConnection( to address: String, at port: UInt16 ) -> Bool {
         updateResponse(" Connect to \(address) at port \(port) using \(useDatagramProtocol ? "UDP" : "TCP")")
 
         usleep( 1000000 )
@@ -97,7 +92,7 @@ import Foundation
     }
 
 
-    @discardableResult public func sendCmd( _ message: String ) -> Bool {
+    @discardableResult override public func sendCmd( _ message: String ) -> Bool {
 
         guard connectionState == .connected else {
             updateResponse(" sendCmd socket not connected while sending \(message)")
