@@ -131,7 +131,7 @@ let useDatagramProtocol = true
             if connectResult {
                 connectionState = .connected
                 updateResponse("  Connected to host \(hostName)")
-                sendCmd( "@" )
+                sendCmd( "@" )  // At connection start, get status
             } else {
                 connectionState = .disconnected
                 updateResponse("  Failed to connect to host \(hostName)")

@@ -73,5 +73,5 @@ struct CalibrateView: View {
 
 #Preview {
     CalibrateView()
-        .environment(MockSender(Speed.shared) as Sender)
+        .environment(MockSender() as Sender)
 }

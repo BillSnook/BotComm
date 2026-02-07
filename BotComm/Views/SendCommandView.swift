@@ -33,7 +33,7 @@ struct SendCommandView: View {
     Form {
         Section() {
             SendCommandView()
-                .environment(MockSender(Speed.shared) as Sender)
+                .environment(MockSender() as Sender)
         }
     }
 }

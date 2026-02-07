@@ -42,6 +42,6 @@ struct TestSpeedSetting: View {
 
 #Preview {
     TestSpeedSetting(speedIndex: Speed.shared)
-        .environment(MockSender(Speed.shared) as Sender)
+        .environment(MockSender() as Sender)
         .padding(EdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0))
 }

@@ -11,12 +11,11 @@ import Foundation
 @Observable class MockSender: Sender {
 
     @ObservationIgnored var work: Task<Void, Never>?
-    @ObservationIgnored var speed: Speed = Speed.shared
+    @ObservationIgnored var speed: Speed
 
-    public init(_ speedIndex: Speed) {
-        // For testing buttons, use connected, else use disconnected
+    override public init() {
+        speed = Speed.shared
         super.init()
-        speed = speedIndex
     }
 
     deinit {
@@ -124,9 +123,10 @@ import Foundation
     }
 
    func getSpeedData() {
+        print("before task work initiation")
         work = Task {
-            print("start task work")
-            try? await Task.sleep(for: .seconds(2))
+            print("before task work")
+            try? await Task.sleep(for: .seconds(4))
             let replyString = """
                 D 8
                 0 0 0
@@ -149,11 +149,11 @@ import Foundation
                 -8 2048 2048
                 """
             speed.setup(replyString)
-            print("completed task work")
+            print("after task work")
             updateResponse("Mock speed data:")
             updateResponse(replyString)
         }
-        print("after task work returns")
+        print("after task work initiation")
    }
 
 //    func start() {
